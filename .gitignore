@@ -20,8 +20,8 @@ CODEBASE_ANALYSIS_REPORT.md
 
 dump/
 
-app/
-app
+*.bson
+
 
 server/_temp/create_users.js
 
