@@ -55,8 +55,9 @@ const databases = {
   "https://aimabizlabedge.com": 'bizlab',
   "https://parasim.in": 'parasim',
   "http://parasim.local": 'parasim',
-  "https://parasim.vercel.app": 'parasim',        // ✅ Vercel frontend
-  "https://parasimback.onrender.com": 'parasim'   // ✅ Render backend
+  // "https://parasim.vercel.app": 'parasim',        // ✅ Vercel frontend
+  "https://pcombine.vercel.app/": 'parasim', // ✅ Vercel frontend
+  "https://pcombine.onrender.com": 'parasim'   // ✅ Render backend
 };
 
 const data_folder = { ...databases };
