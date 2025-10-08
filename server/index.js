@@ -44,6 +44,7 @@ const databases = {
   "http://localhost:3500": 'bizlab',
   "http://localhost:4000": 'bizlab',
   "http://localhost:5000": 'parasim',
+  "http://localhost:8080": 'parasim',
   "https://game.parasim.in": 'parasim',
   "https://demo.parasim.in": 'parasim_demo',
   "https://test.parasim.in": 'parasim_test',
@@ -56,7 +57,7 @@ const databases = {
   "https://parasim.in": 'parasim',
   "http://parasim.local": 'parasim',
   // "https://parasim.vercel.app": 'parasim',        // ✅ Vercel frontend
-  "https://pcombine.vercel.app/": 'parasim', // ✅ Vercel frontend
+  "https://pcombine.vercel.app": 'parasim', // ✅ Vercel frontend
   "https://pcombine.onrender.com": 'parasim'   // ✅ Render backend
 };
 
