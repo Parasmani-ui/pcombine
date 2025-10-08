@@ -58,6 +58,7 @@ const databases = {
   "http://parasim.local": 'parasim',
   // "https://parasim.vercel.app": 'parasim',        // ✅ Vercel frontend
   "https://pcombine.vercel.app": 'parasim', // ✅ Vercel frontend
+  "https://pcombine-detects-projects-99e836f8.vercel.app": 'bizlab', // ✅ Vercel frontend for bizlab
   "https://pcombine.onrender.com": 'parasim'   // ✅ Render backend
 };
 

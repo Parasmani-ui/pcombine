@@ -18,7 +18,8 @@ module.exports = {
   devServer: {
     static: './public',
     hot: true,
-    port: 8080,
+    port: 3000,
+    // port: 8080,
     historyApiFallback: true,
   },
   plugins: [

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack serve --open --config webpack.config.js",
+    "start:4000": "webpack serve --open --config webpack.config.js --port 4000",
     "build": "webpack --mode production --config webpack.config.js",
     "start:prod": "cross-env REACT_APP_API_URL=https://pcombine.onrender.com webpack serve --mode production --config webpack.config.js",
     "build:prod": "cross-env REACT_APP_API_URL=https://pcombine.onrender.com webpack --mode production --config webpack.config.js"
