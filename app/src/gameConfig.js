@@ -22,6 +22,10 @@ const version = (() => {
     }
     else
     {
+        // Map Vercel staging domains to canonical domains for branding
+        if (_domain === 'pcombine-detects-projects-99e836f8.vercel.app') {
+            return 'game.aimabizlabedge.com'; // treat as Bizlab
+        }
         return _domain;
     }
     return null;
