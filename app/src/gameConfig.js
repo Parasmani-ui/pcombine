@@ -3,10 +3,10 @@ const _port = window.location.port;
 
 // Use environment variables for production deployment
 const _server = process.env.REACT_APP_API_URL || 
-                (_domain === "localhost" ? `http://localhost:5000` : `https://${_domain}`);
+                (_domain === "localhost" ? `http://localhost:5000` : `https://pcombine.onrender.com`);
 
 const _public_url = process.env.REACT_APP_PUBLIC_URL || 
-                   (_domain === "localhost" ? `http://localhost:5000/` : `https://${_domain}/`);
+                   (_domain === "localhost" ? `http://localhost:5000/` : `https://pcombine.onrender.com/`);
 
 const version = (() => {
     if (_domain == 'localhost') {
