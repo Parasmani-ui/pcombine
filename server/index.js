@@ -59,6 +59,7 @@ const databases = {
   // "https://parasim.vercel.app": 'parasim',        // ✅ Vercel frontend
   "https://pcombine.vercel.app": 'parasim', // ✅ Vercel frontend
   "https://pcombine-detects-projects-99e836f8.vercel.app": 'bizlab', // ✅ Vercel frontend for bizlab
+  "https://pcombine-git-main-detects-projects-99e836f8.vercel.app": 'bizlab',
   "https://pcombine.onrender.com": 'parasim'   // ✅ Render backend
 };
 
@@ -96,49 +97,50 @@ app.use((err, req, res, next) => {
 // ---- DOMAIN CHECK + DB CONNECT ----
 const pools = {};
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
+  const originHeader = req.headers.origin;
+  const refererHeader = req.get('Referer');
+  const refererOrigin = refererHeader ? refererHeader.match(/^https?:\/\/[^/]+/)?.[0] : undefined;
 
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
+  const callerOrigin = originHeader || refererOrigin;
+
+  if (callerOrigin && allowedOrigins.includes(callerOrigin)) {
+    res.header("Access-Control-Allow-Origin", callerOrigin);
     res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.header("Access-Control-Allow-Credentials", "true");
   }
 
-  var host = req.hostname;
-  if (host == 'localhost') {
-    host = req.get('Referer')?.slice(0, -1);
-  } else {
-    host = 'https://' + host;
-  }
+  const callerKey = callerOrigin && databases[callerOrigin]
+    ? callerOrigin
+    : ('https://' + req.hostname);
 
-  req.body.data_folder = '../data/' + (data_folder[host] || 'parasim') + '/';
+  req.body.data_folder = '../data/' + (data_folder[callerKey] || 'parasim') + '/';
 
-  if (!databases[host]) {
-    console.error('Unauthorised domain access: ' + host);
+  if (!databases[callerKey]) {
+    console.error('Unauthorised domain access: ' + callerKey);
     res.status(404).send('Domain not authorised');
     return;
   }
 
-  if (pools.hasOwnProperty(host)) {
-    req.database = pools[host];
+  if (pools.hasOwnProperty(callerKey)) {
+    req.database = pools[callerKey];
     next();
     return;
   }
 
   const mongoUri = process.env.MONGODB_URI || `mongodb://127.0.0.1:27017`;
-  const dbName = databases[host];
+  const dbName = databases[callerKey];
   const client = new MongoClient(mongoUri);
 
   client.connect()
     .then(() => {
-      pools[host] = client.db(dbName);
-      console.info(`Connected to database ${dbName} for ${host}`);
-      req.database = pools[host];
+      pools[callerKey] = client.db(dbName);
+      console.info(`Connected to database ${dbName} for ${callerKey}`);
+      req.database = pools[callerKey];
       next();
     })
     .catch((err) => {
-      console.error(`Error connecting to database ${dbName} for ${host}:`, err);
+      console.error(`Error connecting to database ${dbName} for ${callerKey}:`, err);
       res.status(500).send('Database connection error');
     });
 });
