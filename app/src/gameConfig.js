@@ -8,6 +8,16 @@ const _server = process.env.REACT_APP_API_URL ||
 const _public_url = process.env.REACT_APP_PUBLIC_URL || 
                    (_domain === "localhost" ? `http://localhost:5000/` : `https://pcombine.onrender.com/`);
 
+// Debug logging
+console.log('🔧 GameConfig Debug:', {
+    domain: _domain,
+    port: _port,
+    server: _server,
+    public_url: _public_url,
+    env_api: process.env.REACT_APP_API_URL,
+    env_public: process.env.REACT_APP_PUBLIC_URL
+});
+
 const version = (() => {
     if (_domain == 'localhost') {
         if (_port == 4000) {
