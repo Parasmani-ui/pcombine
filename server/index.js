@@ -129,7 +129,7 @@ app.use((req, res, next) => {
   }
 
   const mongoUri = process.env.MONGODB_URI || `mongodb://127.0.0.1:27017`;
-  const dbName = databases[host];
+  const dbName = databases[callerKey];
   const client = new MongoClient(mongoUri);
   client.connect()
     .then(() => {
