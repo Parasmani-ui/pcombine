@@ -128,10 +128,9 @@ app.use((req, res, next) => {
     return;
   }
 
-  const mongoUri = 'mongodb+srv://vikashparasmani7_db_user:8AZ7flSQip3gfJY1@parasim-cluster.yta7uk8.mongodb.net/';
-  const dbName = databases[callerKey];
+  const mongoUri = process.env.MONGODB_URI || `mongodb://127.0.0.1:27017`;
+  const dbName = databases[host];
   const client = new MongoClient(mongoUri);
-
   client.connect()
     .then(() => {
       pools[callerKey] = client.db(dbName);
