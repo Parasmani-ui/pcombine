@@ -254,7 +254,12 @@ app.use('/api', async (req, res) => {
 });
 
 // Static files
-app.use(express.static(path.join(__dirname, '../public')));
+// Support both local development (../public) and production deployment (./public)
+const publicPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, './public')
+  : path.join(__dirname, '../public');
+app.use(express.static(publicPath));
+console.log('Serving static files from:', publicPath);
 
 // Health check
 app.get('/', (req, res) => {
