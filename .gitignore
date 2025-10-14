@@ -22,7 +22,8 @@ dump/
 
 *.bson
 
-
-server/_temp/create_users.js
-
+temperory_me/
+temperory_me
 README.md
+public/
+app/public/

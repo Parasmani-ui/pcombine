@@ -33,7 +33,8 @@ const version = (() => {
     else
     {
         // Map Vercel staging domains to canonical domains for branding
-        if (_domain === 'pcombine-detects-projects-99e836f8.vercel.app') {
+        if (_domain === 'pcombine-detects-projects-99e836f8.vercel.app' ||
+            _domain === 'aimabizlabedge.vercel.app') {
             return 'game.aimabizlabedge.com'; // treat as Bizlab
         }
         return _domain;
@@ -112,7 +113,7 @@ const gameConfig = {
         '--loginform_button_background_color': '#2196F3',
         '--loginform_button_text_color': '#FFFFFF',
 
-        /* global */
+        /* global colors */
         '--icon_color': '#000000',
         '--toolbar_background_color': '#ADD8E6',
         '--toolbar_text_color': '#0000FF',
