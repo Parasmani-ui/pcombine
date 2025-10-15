@@ -68,7 +68,15 @@ const EditableImage = (props) => {
 
         const saveFn = props.saveFn || 'saveCaseStudyImage';
         const result = await db[saveFn](props, props.saveKey, props.src, image, props.filters || null, false);
-        setImageURL(result.url);
+        if (!result) {
+            return;
+        }
+        // db.saveImage returns the stored value string (e.g., 'overrides/abc.png' or 'uploads/xyz.png')
+        // Build the absolute URL for immediate preview
+        const nextUrl = props.caseStudy
+            ? gameConfig.getCaseStudyImagePath(props.caseStudy.key, result)
+            : gameConfig.getImagePath(result);
+        setImageURL(nextUrl);
         setShowSave(false);
         //props.updateData();
 
