@@ -215,7 +215,9 @@ app.post('/upload/*', upload.single('file'), async (req, res) => {
   _data.data = JSON.parse(_data.data);
 
   try {
-    const user = await apis.validate(txn, req.database, req.body);
+    // Validate against the parsed body. Using the raw req.body (with stringified user/data)
+    // causes authorization to fail in some deployments.
+    const user = await apis.validate(txn, req.database, _data);
     if (!user) {
       res.json({ rc: 'Unauthorized access: ' + txn });
       return;
