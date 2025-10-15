@@ -64,6 +64,9 @@ const _adminOnly = [
     '/admin/assessment_timeout',
     '/admin/quarter_timeout',
 
+    // Allow admins to upload case study images (used by admin UI)
+    '/sadmin/save_case_study_image',
+
     '/admin/save_institute_image',
     '/admin/upload_student_list',
     '/admin/upload_game_students'
