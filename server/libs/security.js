@@ -66,6 +66,13 @@ const _adminOnly = [
 
     // Allow admins to upload case study images (used by admin UI)
     '/sadmin/save_case_study_image',
+    '/upload/sadmin/save_case_study_image',
+    'sadmin/save_case_study_image',
+    '/sadmin/upload_system_image',
+    '/upload/sadmin/upload_system_image',
+    '/upload/sadmin/save_case_study_image',
+    '/sadmin/save_case_study_image',
+    '/upload/admin/save_case_study_image',
 
     '/admin/save_institute_image',
     '/admin/upload_student_list',
@@ -93,9 +100,15 @@ const _superAdminOnly = [
     '/sadmin/remove_case_study_value',
     '/sadmin/save_website_data',
     '/sadmin/delete_game',
+    '/upload/sadmin/save_case_study_image',
+    'sadmin/save_case_study_image',
+    '/upload/sadmin/save_case_study_image',
+    '/sadmin/save_case_study_image',
+    '/upload/admin/save_case_study_image',
 
     '/sadmin/upload_system_image',
     '/sadmin/save_case_study_image',
+    '/upload/sadmin/save_case_study_image',
     '/admin/upload_bot_decisions'
 ];
 
