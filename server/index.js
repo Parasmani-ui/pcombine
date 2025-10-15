@@ -282,12 +282,22 @@ app.use('/api', async (req, res) => {
 });
 
 // Static files
-// Support both local development (../public) and production deployment (./public)
-const publicPath = process.env.NODE_ENV === 'production' 
-  ? path.join(__dirname, './public')
-  : path.join(__dirname, '../public');
-app.use(express.static(publicPath));
-console.log('Serving static files from:', publicPath);
+// Serve from both ../public (project root) and ./public (inside server) to
+// ensure uploaded files saved to ../public are accessible in production.
+const staticCandidates = [
+  path.join(__dirname, '../public'),
+  path.join(__dirname, './public')
+];
+staticCandidates.forEach(p => {
+  try {
+    if (fs.existsSync(p)) {
+      app.use(express.static(p));
+      console.log('Serving static files from:', p);
+    }
+  } catch (e) {
+    console.error('Static path check failed for', p, e.message);
+  }
+});
 
 // Health check
 app.get('/', (req, res) => {
