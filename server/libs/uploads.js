@@ -18,27 +18,59 @@ const apis = {
     },
 
     '/sadmin/upload_system_image': async (txn, db, input, file) => {
-        const varName = input.data.file_var;
-        const tempFileName = file.path;
-        const fileName = file.originalname.trim().toLowerCase().replace(/[^a-z0-9\.\_]+/g, '-');
+        try {
+            const varName = input.data.file_var;
+            const tempFileName = file.path;
+            const fileName = file.originalname.trim().toLowerCase().replace(/[^a-z0-9\.\_]+/g, '-');
 
-        var images = {};
-        if (fs.existsSync(_data_folder + 'images.json')) {
-            images = JSON.parse(fs.readFileSync(_data_folder + 'images.json', { encoding: 'utf8' }));
-        }
-
-        const prevImage = images[varName];
-        if (prevImage) {
-            if (/^overrides\//.test(prevImage) && fs.existsSync('../public/' + prevImage)) {
-                fs.unlinkSync('../public/' + prevImage);
+            // Ensure overrides directory exists
+            const overridesDir = '../public/overrides/';
+            if (!fs.existsSync(overridesDir)) {
+                fs.mkdirSync(overridesDir, { recursive: true });
             }
+
+            var images = {};
+            if (fs.existsSync(_data_folder + 'images.json')) {
+                images = JSON.parse(fs.readFileSync(_data_folder + 'images.json', { encoding: 'utf8' }));
+            }
+
+            const prevImage = images[varName];
+            if (prevImage) {
+                if (/^overrides\//.test(prevImage) && fs.existsSync('../public/' + prevImage)) {
+                    fs.unlinkSync('../public/' + prevImage);
+                }
+            }
+
+            images[varName] = 'overrides/' + file.filename + '-' + fileName;
+            fs.writeFileSync(_data_folder + 'images.json', JSON.stringify(images), { encoding: 'utf8' });
+            
+            // Ensure the target directory exists before moving the file
+            const targetPath = '../public/' + images[varName];
+            const targetDir = targetPath.substring(0, targetPath.lastIndexOf('/'));
+            if (!fs.existsSync(targetDir)) {
+                fs.mkdirSync(targetDir, { recursive: true });
+            }
+            
+            // Check if temp file exists before moving
+            if (!fs.existsSync(tempFileName)) {
+                return ({ rc: 'Error: Temporary file not found' });
+            }
+            
+            fs.renameSync(tempFileName, targetPath);
+
+            return ({ rc: 'success', data: { url: images[varName] } });
+        } catch (error) {
+            console.error('Error in upload_system_image:', error);
+            // Clean up temp file on error
+            if (fs.existsSync(tempFileName)) {
+                try {
+                    fs.unlinkSync(tempFileName);
+                } catch (cleanupError) {
+                    console.error('Error cleaning up temp file:', cleanupError);
+                }
+            }
+            return ({ rc: 'Error saving image: ' + error.message });
         }
-
-        images[varName] = 'overrides/' + file.filename + '-' + fileName;
-        fs.writeFileSync(_data_folder + 'images.json', JSON.stringify(images), { encoding: 'utf8' });
-        fs.renameSync(tempFileName, '../public/' + images[varName]);
-
-        return ({ rc: 'success', data: { url: images[varName] } });
     },
 
     '/sadmin/save_case_study_image': async (txn, db, input, file) => {
@@ -46,6 +78,11 @@ const apis = {
 
         const folder = '../public/case_studies/' + input.data.obj_key + '/images/';
         const fileName = 'overrides/' + file.filename + '-' + file.originalname.trim().toLowerCase().replace(/[^a-z0-9\.\_]+/g, '-');
+
+        // Ensure the target directory exists
+        if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true });
+        }
 
         fs.renameSync(file.path, folder + fileName);
 
@@ -56,7 +93,7 @@ const apis = {
         const coll = db.collection('case_studies');
         await coll.updateOne({ key: input.data.obj_key }, { $set: $set }, filters);
 
-        if (input.data.prev_image.split('/').indexOf('overrides') != -1 && fs.existsSync('../public/' + input.data.prev_image)) {
+        if (input.data.prev_image && input.data.prev_image.split('/').indexOf('overrides') != -1 && fs.existsSync('../public/' + input.data.prev_image)) {
             fs.unlinkSync('../public/' + input.data.prev_image);
         }
 
@@ -64,25 +101,49 @@ const apis = {
     },
 
     '/admin/save_institute_image': async (txn, db, input, file) => {
-        const imageKey = input.data.image_key;
+        try {
+            const imageKey = input.data.image_key;
 
-        const folder = '../public/';
-        const fileName = 'uploads/' + file.filename + '-' + file.originalname.trim().toLowerCase().replace(/[^a-z0-9\.\_]+/g, '-');
+            const folder = '../public/';
+            const fileName = 'uploads/' + file.filename + '-' + file.originalname.trim().toLowerCase().replace(/[^a-z0-9\.\_]+/g, '-');
 
-        fs.renameSync(file.path, folder + fileName);
+            // Ensure uploads directory exists in public
+            const uploadsDir = '../public/uploads/';
+            if (!fs.existsSync(uploadsDir)) {
+                fs.mkdirSync(uploadsDir, { recursive: true });
+            }
 
-        $set = {};
-        $set[input.data.image_key] = fileName;
-        const filters = { arrayFilters: input.data.filters } || {};
+            // Check if temp file exists before moving
+            if (!fs.existsSync(file.path)) {
+                return ({ rc: 'Error: Temporary file not found' });
+            }
 
-        const coll = db.collection('institutes');
-        await coll.updateOne({ key: input.data.obj_key }, { $set: $set }, filters);
+            fs.renameSync(file.path, folder + fileName);
 
-        if (/^uploads\//.test(input.data.prev_image) && fs.existsSync('../public/' + input.data.prev_image)) {
-            fs.unlinkSync('../public/' + input.data.prev_image);
+            $set = {};
+            $set[input.data.image_key] = fileName;
+            const filters = { arrayFilters: input.data.filters } || {};
+
+            const coll = db.collection('institutes');
+            await coll.updateOne({ key: input.data.obj_key }, { $set: $set }, filters);
+
+            if (input.data.prev_image && /^uploads\//.test(input.data.prev_image) && fs.existsSync('../public/' + input.data.prev_image)) {
+                fs.unlinkSync('../public/' + input.data.prev_image);
+            }
+
+            return ({ rc: 'success', data: { url: fileName } });
+        } catch (error) {
+            console.error('Error in save_institute_image:', error);
+            // Clean up temp file on error
+            if (fs.existsSync(file.path)) {
+                try {
+                    fs.unlinkSync(file.path);
+                } catch (cleanupError) {
+                    console.error('Error cleaning up temp file:', cleanupError);
+                }
+            }
+            return ({ rc: 'Error saving image: ' + error.message });
         }
-
-        return ({ rc: 'success', data: { url: fileName } });
     },
 
     '/admin/upload_student_list': async (txn, db, input, file) => {

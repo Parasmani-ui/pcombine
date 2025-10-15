@@ -2,7 +2,6 @@ node_modules/
 .bin/
 package-lock.json
 build/
-uploads/
 .cache/
 .vs/
 fonts/
@@ -25,5 +24,4 @@ dump/
 temperory_me/
 temperory_me
 README.md
-public/
-app/public/
+public/uploads/
