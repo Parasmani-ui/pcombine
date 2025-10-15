@@ -73,6 +73,7 @@ const _adminOnly = [
     '/upload/sadmin/save_case_study_image',
     '/sadmin/save_case_study_image',
     '/upload/admin/save_case_study_image',
+    '/upload/admin/save_institute_image',
 
     '/admin/save_institute_image',
     '/admin/upload_student_list',
@@ -105,6 +106,7 @@ const _superAdminOnly = [
     '/upload/sadmin/save_case_study_image',
     '/sadmin/save_case_study_image',
     '/upload/admin/save_case_study_image',
+    '/upload/admin/save_institute_image',
 
     '/sadmin/upload_system_image',
     '/sadmin/save_case_study_image',
