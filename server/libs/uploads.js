@@ -100,6 +100,31 @@ const apis = {
         return ({ rc: 'success', data: { url: fileName } });
     },
 
+    // Admin alias to support admin UI calling the same upload endpoint
+    '/admin/save_case_study_image': async (txn, db, input, file) => {
+        const folder = '../public/case_studies/' + input.data.obj_key + '/images/';
+        const fileName = 'overrides/' + file.filename + '-' + file.originalname.trim().toLowerCase().replace(/[^a-z0-9\._]+/g, '-');
+
+        if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true });
+        }
+
+        fs.renameSync(file.path, folder + fileName);
+
+        $set = {};
+        $set[input.data.image_key] = fileName;
+        const filters = { arrayFilters: input.data.filters } || {};
+
+        const coll = db.collection('case_studies');
+        await coll.updateOne({ key: input.data.obj_key }, { $set: $set }, filters);
+
+        if (input.data.prev_image && input.data.prev_image.split('/').indexOf('overrides') != -1 && fs.existsSync('../public/' + input.data.prev_image)) {
+            fs.unlinkSync('../public/' + input.data.prev_image);
+        }
+
+        return ({ rc: 'success', data: { url: fileName } });
+    },
+
     '/admin/save_institute_image': async (txn, db, input, file) => {
         try {
             const imageKey = input.data.image_key;

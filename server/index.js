@@ -209,7 +209,9 @@ app.get('/download_bot_decisions', (req, res) => {
 
 const upload = multer({ dest: 'uploads/' })
 app.post('/upload/*', upload.single('file'), async (req, res) => {
-  const txn = req.url.replace(/^\/upload/g, '');
+  // Use path (no query string) and normalize
+  const rawPath = req.path || req.url;
+  const txn = rawPath.replace(/^\/upload/, ''); // keeps leading slash for route key
   const _data = req.body;
   _data.user = JSON.parse(_data.user);
   _data.data = JSON.parse(_data.data);
@@ -224,7 +226,20 @@ app.post('/upload/*', upload.single('file'), async (req, res) => {
     }
 
     req.body.user = user;
-    const output = await uploads[txn].call(null, txn, req.database, _data, req.file);
+
+    // Resolve handler robustly (with/without leading slash)
+    let handler = uploads[txn];
+    if (!handler) {
+      const alt = txn.startsWith('/') ? txn.slice(1) : ('/' + txn);
+      handler = uploads[alt];
+    }
+    if (!handler) {
+      console.error('Upload handler not found for txn:', txn);
+      res.json({ rc: 'Invalid upload route: ' + txn });
+      return;
+    }
+
+    const output = await handler.call(null, txn, req.database, _data, req.file);
     res.json(output);
   } catch (e) {
     res.json({ rc: e.message });
