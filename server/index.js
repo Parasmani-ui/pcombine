@@ -211,7 +211,11 @@ const upload = multer({ dest: 'uploads/' })
 app.post('/upload/*', upload.single('file'), async (req, res) => {
   // Use path (no query string) and normalize
   const rawPath = req.path || req.url;
-  const txn = rawPath.replace(/^\/upload/, ''); // keeps leading slash for route key
+  // Strip one or more leading '/upload' segments and preserve a single leading slash
+  let txn = rawPath
+    .replace(/^\/upload\b/, '')
+    .replace(/^\/upload\b/, '') // double safety if proxy adds it twice
+    .replace(/^\/+/, '/');
   const _data = req.body;
   _data.user = JSON.parse(_data.user);
   _data.data = JSON.parse(_data.data);
@@ -227,11 +231,18 @@ app.post('/upload/*', upload.single('file'), async (req, res) => {
 
     req.body.user = user;
 
-    // Resolve handler robustly (with/without leading slash)
-    let handler = uploads[txn];
-    if (!handler) {
-      const alt = txn.startsWith('/') ? txn.slice(1) : ('/' + txn);
-      handler = uploads[alt];
+    // Resolve handler robustly (try multiple normalized variants)
+    const candidates = [
+      txn,
+      txn.startsWith('/') ? txn.slice(1) : ('/' + txn),
+      txn.replace(/^\/upload\//, '/'),
+      txn.replace(/^upload\//, '/'),
+      ('/' + (txn.startsWith('/') ? txn.slice(1) : txn)),
+    ];
+
+    let handler = null;
+    for (const key of candidates) {
+      if (uploads[key]) { handler = uploads[key]; txn = key; break; }
     }
     if (!handler) {
       console.error('Upload handler not found for txn:', txn);
