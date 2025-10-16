@@ -52,10 +52,12 @@ const saveImage = async (txn, key, props, saveKey, prevImage, image, filters, do
         return null;
     }
 
+    // result is a stored path string (e.g., 'overrides/...', 'uploads/...')
+    const valueToStore = result?.url || result; // support both object and string
     !dontUpdate && 
-        (props.updateParent ? await props.updateParent({key: key, saveKey: saveKey, value: result.url}) : 
-        await props.updateData({key: key, saveKey: saveKey, value: result.url}));
-    return result.url;
+        (props.updateParent ? await props.updateParent({key: key, saveKey: saveKey, value: valueToStore}) : 
+        await props.updateData({key: key, saveKey: saveKey, value: valueToStore}));
+    return valueToStore;
 };
 
 const db = {

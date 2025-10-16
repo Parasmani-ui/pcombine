@@ -57,9 +57,34 @@ const gameConfig = {
     "DEBUG_DISABLE_LOCALSTORAGE": false,
 
     getCaseStudyImagePath: (key, image) => {
-        return key && image ? _public_url + 'case_studies/' + key + '/images/' + image : null;
+        // Robustly build a public URL for case study images
+        if (!image) {
+            return _public_url + 'images/blank.jpg';
+        }
+        // If absolute URL, return as-is
+        if (/^https?:\/\//i.test(image)) {
+            return image;
+        }
+        // If already rooted under case_studies, just prefix the PUBLIC_URL
+        if (/^case_studies\//i.test(image)) {
+            return _public_url + image;
+        }
+        // Otherwise treat as relative to the case study images folder
+        return key ? (_public_url + 'case_studies/' + key + '/images/' + image) : (_public_url + image);
     },
     getImagePath: (image) => {
+        // Robustly build a public URL for general images
+        if (!image) {
+            return _public_url + 'images/blank.jpg';
+        }
+        // If absolute URL, return as-is
+        if (/^https?:\/\//i.test(image)) {
+            return image;
+        }
+        // If image already begins with '/', avoid double slash issues
+        if (image.startsWith('/')) {
+            return _public_url + image.substring(1);
+        }
         return _public_url + image;
     },
 
