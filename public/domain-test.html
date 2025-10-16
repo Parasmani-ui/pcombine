@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Upload Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { border: 1px solid #ddd; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        input[type="file"] { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Domain Upload Test</h1>
+    <p>Test image uploads for both domains</p>
+    
+    <div class="test-section">
+        <h2>Current Domain Info</h2>
+        <p><strong>Domain:</strong> <span id="currentDomain"></span></p>
+        <p><strong>Expected Database:</strong> <span id="expectedDb"></span></p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test System Image Upload</h2>
+        <input type="file" id="systemFile" accept="image/*">
+        <br>
+        <input type="text" id="varName" placeholder="Variable name" value="test_logo">
+        <br>
+        <button onclick="testSystemUpload()">Test System Upload</button>
+        <div id="systemResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Institute Image Upload</h2>
+        <input type="file" id="instituteFile" accept="image/*">
+        <br>
+        <input type="text" id="imageKey" placeholder="Image key" value="logo">
+        <input type="text" id="objKey" placeholder="Object key" value="test-institute">
+        <br>
+        <button onclick="testInstituteUpload()">Test Institute Upload</button>
+        <div id="instituteResult"></div>
+    </div>
+
+    <script>
+        // Detect current domain and expected database
+        const domain = window.location.hostname;
+        const expectedDb = domain.includes('aimabizlabedge') ? 'bizlab' : 'parasim';
+        
+        document.getElementById('currentDomain').textContent = domain;
+        document.getElementById('expectedDb').textContent = expectedDb;
+
+        function showResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${isError ? 'error' : 'success'}">${message}</div>`;
+        }
+
+        async function testSystemUpload() {
+            const file = document.getElementById('systemFile').files[0];
+            const varName = document.getElementById('varName').value;
+            
+            if (!file) {
+                showResult('systemResult', 'Please select a file', true);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('user', JSON.stringify({
+                auth: 'dummy-auth',
+                key: 'test-key',
+                role: 'superadmin',
+                email: 'test@example.com'
+            }));
+            formData.append('data', JSON.stringify({
+                file_var: varName
+            }));
+
+            try {
+                const response = await fetch('/upload/sadmin/upload_system_image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.rc === 'success') {
+                    showResult('systemResult', `✅ System upload successful! URL: ${result.data.url}`);
+                } else {
+                    showResult('systemResult', `❌ System upload failed: ${result.rc}`, true);
+                }
+            } catch (error) {
+                showResult('systemResult', `❌ System upload error: ${error.message}`, true);
+            }
+        }
+
+        async function testInstituteUpload() {
+            const file = document.getElementById('instituteFile').files[0];
+            const imageKey = document.getElementById('imageKey').value;
+            const objKey = document.getElementById('objKey').value;
+            
+            if (!file) {
+                showResult('instituteResult', 'Please select a file', true);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('user', JSON.stringify({
+                auth: 'dummy-auth',
+                key: 'test-key',
+                role: 'admin',
+                email: 'admin@example.com',
+                institute_key: 'test-institute'
+            }));
+            formData.append('data', JSON.stringify({
+                image_key: imageKey,
+                obj_key: objKey,
+                prev_image: ''
+            }));
+
+            try {
+                const response = await fetch('/upload/admin/save_institute_image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.rc === 'success') {
+                    showResult('instituteResult', `✅ Institute upload successful! URL: ${result.data.url}`);
+                } else {
+                    showResult('instituteResult', `❌ Institute upload failed: ${result.rc}`, true);
+                }
+            } catch (error) {
+                showResult('instituteResult', `❌ Institute upload error: ${error.message}`, true);
+            }
+        }
+    </script>
+</body>
+</html>

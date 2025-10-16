@@ -299,6 +299,31 @@ staticCandidates.forEach(p => {
   }
 });
 
+// Fallback route: serve override images by filename at root for legacy clients
+// Matches names like '<hash>-<original>.(png|jpg|jpeg|webp|svg)'
+app.get('/:fileName([a-f0-9-]+-.+\.(png|jpg|jpeg|webp|svg))', (req, res, next) => {
+  const fileName = req.params.fileName;
+  try {
+    const base = path.join(__dirname, '../public/case_studies');
+    if (!fs.existsSync(base)) {
+      return next();
+    }
+    const caseStudyDirs = fs.readdirSync(base, { withFileTypes: true })
+      .filter(d => d.isDirectory())
+      .map(d => d.name);
+
+    for (const dir of caseStudyDirs) {
+      const candidate = path.join(base, dir, 'images', 'overrides', fileName);
+      if (fs.existsSync(candidate)) {
+        return res.sendFile(candidate);
+      }
+    }
+  } catch (e) {
+    // fall through to next handler
+  }
+  return next();
+});
+
 // Health check
 app.get('/', (req, res) => {
   res.json({
