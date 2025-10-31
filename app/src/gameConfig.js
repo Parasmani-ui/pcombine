@@ -59,7 +59,8 @@ const gameConfig = {
     getCaseStudyImagePath: (key, image) => {
         // Robustly build a public URL for case study images
         if (!image) {
-            return _public_url + 'images/blank.jpg';
+            // return _public_url + 'images/blank.jpg';
+            return _public_url + 'case_studies/12fb136d-c3c4-49cd-b5d4-a85cb191f773-1696956219162-8101/images/overrides/0cd13e008d6f446f1a21c4d7ae3966a6-product2.jpg';
         }
         // If absolute URL, return as-is
         if (/^https?:\/\//i.test(image)) {
@@ -75,7 +76,7 @@ const gameConfig = {
     getImagePath: (image) => {
         // Robustly build a public URL for general images
         if (!image) {
-            return _public_url + 'images/blank.jpg';
+            return _public_url + 'case_studies/12fb136d-c3c4-49cd-b5d4-a85cb191f773-1696956219162-8101/images/overrides/0cd13e008d6f446f1a21c4d7ae3966a6-product2.jpg';
         }
         // If absolute URL, return as-is
         if (/^https?:\/\//i.test(image)) {
